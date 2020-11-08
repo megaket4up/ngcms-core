@@ -1,5 +1,9 @@
 <?php
 
+namespace NG\DB;
+
+use NG\Core\Container;
+
 //
 // Implements LEGACY DB backward compatibility
 class NGLegacyDB
@@ -9,7 +13,7 @@ class NGLegacyDB
     // - false  :: Reuses current connection to DB
     protected $isStandalone = true;
     /**
-     * @var NGPDO Instance of PDO connection
+     * @var PDODriver Instance of PDO connection
      */
     protected $db;
 
@@ -22,9 +26,9 @@ class NGLegacyDB
     {
         // Legacy compatibility
         if (!$this->isStandalone) {
-            $this->db = NGEngine::getInstance()->getDB();
+            $this->db = Container::getInstance()->getDB();
         } else {
-            $this->db = new NGPDO(['host' => $host, 'user' => $user, 'pass' => $pass, 'db' => $db]);
+            $this->db = new PDODriver(['host' => $host, 'user' => $user, 'pass' => $pass, 'db' => $db]);
         }
     }
 
@@ -75,7 +79,7 @@ class NGLegacyDB
 
     public function affected_rows()
     {
-        return $this->db->affected_rows();
+        return $this->db->affected_rows(null);
     }
 
     public function lastid($table = '')

@@ -1,6 +1,8 @@
 <?php
 
-class NGEvents
+namespace NG\Events;
+
+class Events
 {
     protected $eventList = [];
     protected $startTime;

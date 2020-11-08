@@ -1,6 +1,8 @@
 <?php
 
-abstract class NGDB
+namespace NG\DB;
+
+abstract class AbstractDriver
 {
     // Implement connection to DB
     abstract public function __construct($params);

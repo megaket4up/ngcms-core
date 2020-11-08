@@ -75,10 +75,10 @@ function systemConfigSave()
 
     // Check if DB connection params are correct
     try {
-        $sx = NGEngine::getInstance();
-        $sx->set('db', new NGPDO(['host' => $save_con['dbhost'], 'user' => $save_con['dbuser'], 'pass' => $save_con['dbpasswd'], 'db' => $save_con['dbname']]));
+        $sx = \NG\Core\Container::getInstance();
+        $sx->set('db', new \NG\DB\PDODriver(['host' => $save_con['dbhost'], 'user' => $save_con['dbuser'], 'pass' => $save_con['dbpasswd'], 'db' => $save_con['dbname']]));
 
-        $sx->set('legacyDB', new NGLegacyDB(false));
+        $sx->set('legacyDB', new \NG\DB\NGLegacyDB(false));
         $sx->getLegacyDB()->connect('', '', '');
         $sqlTest = $sx->getLegacyDB();
     } catch (Exception $e) {

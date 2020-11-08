@@ -1,6 +1,6 @@
 <?php
 
-// namespace NG\Twig;
+namespace NG\Twig;
 
 use Twig\Environment;
 use Twig\Extension\StringLoaderExtension;

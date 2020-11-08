@@ -318,7 +318,7 @@ function massDeleteNews($list, $permCheck = true)
 // Generate backup for table list. If no list is given - backup ALL tables with system prefix
 function dbBackup($fname, $gzmode, $tlist = '')
 {
-    $db = NGEngine::getInstance()->getDB();
+    $db = \NG\Core\Container::getInstance()->getDB();
 
     if ($gzmode && (!function_exists('gzopen'))) {
         $gzmode = 0;
@@ -1223,7 +1223,7 @@ function dbCheckUpgradeRequired(): bool
 {
     global $twig;
 
-    $db = NGEngine::getInstance()->getDB();
+    $db = \NG\Core\Container::getInstance()->getDB();
     $dbv = $db->record('select * from '.prefix."_config where name = 'database.engine.revision'");
 
     if (!is_array($dbv)) {

@@ -55,11 +55,11 @@ NGInstall(function () {
         'GD'       => 'imagecreatefromjpeg',
         'mbstring' => 'mb_internal_encoding',
     ];
-    NGCoreFunctions::resolveDeps($depList);
+    \NG\Core\NGCoreFunctions::resolveDeps($depList);
 
-    $sx = NGEngine::getInstance();
-    $sx->set('events', new NGEvents());
-    $sx->set('errorHandler', new NGErrorHandler());
+    $sx = \NG\Core\Container::getInstance();
+    $sx->set('events', new \NG\Events\Events());
+    $sx->set('errorHandler', new \NG\ErrorHandler\ErrorHandler());
     $sx->set('config', ['sql_error_show' => 2]);
 });
 
@@ -285,7 +285,7 @@ function doConfig()
 
 function doConfig_db($check)
 {
-    global $tvars, $tpl, $templateDir, $SQL_VERSION, $lang;
+    global $tvars, $tpl, $templateDir, $SQL_VERSION, $lang, $mysql;
 
     $myparams = ['action', 'stage', 'reg_dbtype', 'reg_dbhost', 'reg_dbname', 'reg_dbuser', 'reg_dbpass', 'reg_dbprefix', 'reg_autocreate', 'reg_dbadminuser', 'reg_dbadminpass'];
     $DEFAULT = ['reg_dbhost' => 'localhost', 'reg_dbprefix' => 'ng'];
@@ -320,28 +320,16 @@ function doConfig_db($check)
         }
 
         try {
-            $sx = NGEngine::getInstance();
-            $sx->set('events', new NGEvents());
-            $sx->set('errorHandler', new NGErrorHandler());
-
-            $sx->set('db', new NGPDO(['host' => $_POST['reg_dbhost'], 'user' => $_POST['reg_db'.($ac ? 'admin' : '').'user'], 'pass' => $_POST['reg_db'.($ac ? 'admin' : '').'pass']]));
-
-            $sx->set('legacyDB', new NGLegacyDB(false));
-            $sx->getLegacyDB()->connect('', '', '');
-            $mysql = $sx->getLegacyDB();
-            $sqlr = $mysql->mysql_version();
-            if (preg_match('/^(\d+)\.(\d+)/', $sqlr, $regex)) {
-                $SQL_VERSION = [$sqlr, intval($regex[1]), intval($regex[2])];
-            } else {
-                $SQL_VERSION = $sqlr;
-            }
+            \NG\DB\DBBootstrap::boot(
+                \NG\Core\Container::getInstance()
+            );
         } catch (Exception $e) {
             $tvars['vars']['error_message'] = '<div class="errorDiv">'.$lang['error.dbconnect'].' "'.$_POST['reg_dbhost'].'":<br/> ('.$e->getCode().') '.$e->getMessage().'</div>';
             $error = 1;
         }
 
         if (isset($mysql) != null) {
-            $mysql->close($link);
+            $mysql->close();
         }
 
         if (!$error) {
@@ -735,21 +723,18 @@ function doInstall()
         // Если заказали автосоздание, то подключаемся рутом
         if ($_POST['reg_autocreate']) {
             try {
-                $sx = NGEngine::getInstance();
+                $sx = \NG\Core\Container::getInstance();
 
                 switch ($_POST['reg_dbtype']) {
-                    case 'mysql':
-                        $sx->set('db', new NGMYSQL(['host' => $_POST['reg_dbhost'], 'user' => $_POST['reg_dbadminuser'], 'pass' => $_POST['reg_dbadminpass']]));
-                        break;
                     case 'mysqli':
-                        $sx->set('db', new NGMYSQLi(['host' => $_POST['reg_dbhost'], 'user' => $_POST['reg_dbadminuser'], 'pass' => $_POST['reg_dbadminpass']]));
+                        $sx->set('db', new \NG\DB\MYSQLiDriver(['host' => $_POST['reg_dbhost'], 'user' => $_POST['reg_dbadminuser'], 'pass' => $_POST['reg_dbadminpass']]));
                         break;
                     case 'pdo':
-                        $sx->set('db', new NGPDO(['host' => $_POST['reg_dbhost'], 'user' => $_POST['reg_dbadminuser'], 'pass' => $_POST['reg_dbadminpass']]));
+                        $sx->set('db', new \NG\DB\PDODriver(['host' => $_POST['reg_dbhost'], 'user' => $_POST['reg_dbadminuser'], 'pass' => $_POST['reg_dbadminpass']]));
                         break;
                 }
 
-                $sx->set('legacyDB', new NGLegacyDB(false));
+                $sx->set('legacyDB', new \NG\DB\NGLegacyDB(false));
                 $sx->getLegacyDB()->connect('', '', '');
                 $mysql = $sx->getLegacyDB();
 
@@ -794,26 +779,23 @@ function doInstall()
             }
             // Отключаемся от сервера
             if (isset($mysql) != null) {
-                $mysql->close($link);
+                $mysql->close();
             }
         }
 
         try {
-            $sx = NGEngine::getInstance();
+            $sx = \NG\Core\Container::getInstance();
 
             switch ($_POST['reg_dbtype']) {
-                case 'mysql':
-                    $sx->set('db', new NGMYSQL(['host' => $_POST['reg_dbhost'], 'user' => $_POST['reg_dbuser'], 'pass' => $_POST['reg_dbpass']]));
-                    break;
                 case 'mysqli':
-                    $sx->set('db', new NGMYSQLi(['host' => $_POST['reg_dbhost'], 'user' => $_POST['reg_dbuser'], 'pass' => $_POST['reg_dbpass']]));
+                    $sx->set('db', new \NG\DB\MYSQLiDriver(['host' => $_POST['reg_dbhost'], 'user' => $_POST['reg_dbuser'], 'pass' => $_POST['reg_dbpass']]));
                     break;
                 case 'pdo':
-                    $sx->set('db', new NGPDO(['host' => $_POST['reg_dbhost'], 'user' => $_POST['reg_dbuser'], 'pass' => $_POST['reg_dbpass']]));
+                    $sx->set('db', new \NG\DB\PDODriver(['host' => $_POST['reg_dbhost'], 'user' => $_POST['reg_dbuser'], 'pass' => $_POST['reg_dbpass']]));
                     break;
             }
 
-            $sx->set('legacyDB', new NGLegacyDB(false));
+            $sx->set('legacyDB', new \NG\DB\NGLegacyDB(false));
             $sx->getLegacyDB()->connect('', '', '');
             $mysql = $sx->getLegacyDB();
 

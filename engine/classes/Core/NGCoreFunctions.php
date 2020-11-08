@@ -1,5 +1,7 @@
 <?php
 
+namespace NG\Core;
+
 class NGCoreFunctions
 {
     public static function resolveDeps($list)

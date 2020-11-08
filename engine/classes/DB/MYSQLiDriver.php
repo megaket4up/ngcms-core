@@ -1,6 +1,14 @@
 <?php
 
-class NGMYSQLi extends NGDB
+namespace NG\DB;
+
+use Exception;
+use mysqli_sql_exception;
+use NGEvents;
+use NGErrorHandler;
+use NG\Core\Container;
+
+class MYSQLiDriver extends AbstractDriver
 {
     protected $db = null;
     protected $qCount = 0;
@@ -47,7 +55,7 @@ class NGMYSQLi extends NGDB
 
             $this->eventLogger = $params['eventLogger'];
         } else {
-            $this->eventLogger = NGEngine::getInstance()->getEvents();
+            $this->eventLogger = Container::getInstance()->getEvents();
         }
 
         if (isset($params['errorHandler'])) {
@@ -57,7 +65,7 @@ class NGMYSQLi extends NGDB
 
             $this->errorHandler = $params['errorHandler'];
         } else {
-            $this->errorHandler = NGEngine::getInstance()->getErrorHandler();
+            $this->errorHandler = Container::getInstance()->getErrorHandler();
         }
 
         if (isset($params['charset'])) {
@@ -186,7 +194,7 @@ class NGMYSQLi extends NGDB
         $this->eventLogger->registerEvent('NG_MySQLi', 'RESULT', $sql, $duration);
         $this->qList[] = ['query' => $sql, 'duration' => $duration];
 
-        if (count($r)) {
+        if (is_array($r) && count($r)) {
             return $r[array_shift(array_keys($r))];
         }
 
@@ -198,7 +206,7 @@ class NGMYSQLi extends NGDB
         try {
             return mysqli_num_rows($query);
         } catch (mysqli_sql_exception $e) {
-            $this->errorReport('num_rows', $sql, $e);
+            $this->errorReport('num_rows', $query, $e);
         }
     }
 
@@ -207,7 +215,7 @@ class NGMYSQLi extends NGDB
         try {
             return mysqli_fetch_row($query);
         } catch (mysqli_sql_exception $e) {
-            $this->errorReport('fetch_row', $sql, $e);
+            $this->errorReport('fetch_row', $query, $e);
         }
     }
 
@@ -222,7 +230,7 @@ class NGMYSQLi extends NGDB
                 return $r['Auto_increment'] - 1;
             }
         } catch (mysqli_sql_exception $e) {
-            $this->errorReport('lastid', $sql, $e);
+            $this->errorReport('lastid', '', $e);
         }
     }
 
@@ -231,7 +239,7 @@ class NGMYSQLi extends NGDB
         try {
             return mysqli_affected_rows($this->db);
         } catch (mysqli_sql_exception $e) {
-            $this->errorReport('affected_rows', $sql, $e);
+            $this->errorReport('affected_rows', 'mysqli_affected_rows', $e);
         }
     }
 
@@ -240,7 +248,7 @@ class NGMYSQLi extends NGDB
         try {
             mysqli_close($this->db);
         } catch (mysqli_sql_exception $e) {
-            $this->errorReport('close', $sql, $e);
+            $this->errorReport('close', '', $e);
         }
     }
 
@@ -249,7 +257,7 @@ class NGMYSQLi extends NGDB
         try {
             return mysqli_errno($this->db);
         } catch (mysqli_sql_exception $e) {
-            $this->errorReport('close', $sql, $e);
+            $this->errorReport('db_errno', '', $e);
         }
     }
 

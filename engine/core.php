@@ -10,6 +10,8 @@
 // Configure error display mode
 @error_reporting(E_ALL ^ E_NOTICE);
 
+use NG\Core\Container;
+
 // ============================================================================
 // Define global directory constants
 // ============================================================================
@@ -19,8 +21,6 @@ define('NGRootDir', dirname(__DIR__).'/');       // Location of SiteRoot
 define('NGClassDir', NGCoreDir.'classes/');      // Location of AutoLoaded classes
 define('NGVendorDir', NGRootDir.'vendor/');      // Location of Vendor classes
 $loader = require NGVendorDir.'autoload.php';
-
-use PHPMailer\PHPMailer\Exception;
 
 // Autoloader for NEW STYLE Classes
 spl_autoload_register(function ($className) {
@@ -39,6 +39,8 @@ function NGRun($f)
 // MODULE DEPs check + basic setup
 // ============================================================================
 NGRun(function () {
+    global $loader;
+
     $depList = [
         'sql'      => ['pdo' => '', 'pdo_mysql' => ''],
         'zlib'     => 'ob_gzhandler',
@@ -46,11 +48,12 @@ NGRun(function () {
         'GD'       => 'imagecreatefromjpeg',
         'mbstring' => 'mb_internal_encoding',
     ];
-    NGCoreFunctions::resolveDeps($depList);
+    \NG\Core\NGCoreFunctions::resolveDeps($depList);
 
-    $sx = NGEngine::getInstance();
-    $sx->set('events', new NGEvents());
-    $sx->set('errorHandler', new NGErrorHandler());
+    $sx = Container::getInstance();
+    $sx->set('events', new \NG\Events\Events());
+    $sx->set('errorHandler', new \NG\ErrorHandler\ErrorHandler());
+    $sx->set('autoloader', $loader);
 });
 
 // ============================================================================
@@ -250,15 +253,9 @@ register_shutdown_function('ngShutdownHandler');
 
 //
 // *** Initialize TWIG engine
-$twigLoader = new NGTwigLoader(root);
-
-// - Configure environment and general parameters
-$twig = new NGTwigEnvironment($twigLoader, [
-    'cache'       => root.'cache/twig/',
-    'auto_reload' => true,
-    'autoescape'  => false,
-    'charset'     => 'UTF-8',
-]);
+\NG\Twig\TwigBootsrap::boot(
+    Container::getInstance()
+);
 
 // [[MARKER]] TWIG template engine is loaded
 $timer->registerEvent('Template engine is activated');
@@ -280,20 +277,7 @@ if (preg_match('#^http\:\/\/([^\/])+(\/.+)#', $config['home_url'], $match)) {
 // $mysql->connect($config['dbhost'], $config['dbuser'], $config['dbpasswd'], $config['dbname']);
 
 // NEW :: PDO driver with global classes handler
-NGRun(function () {
-    global $config, $mysql;
-
-    $sx = NGEngine::getInstance();
-    $sx->set('db', new NGPDO(['host' => $config['dbhost'], 'user' => $config['dbuser'], 'pass' => $config['dbpasswd'], 'db' => $config['dbname'], 'charset' => 'utf8']));
-
-    $sx->set('config', $config);
-    $sx->set('legacyDB', new NGLegacyDB(false));
-    $sx->getLegacyDB()->connect('', '', '');
-    $mysql = $sx->getLegacyDB();
-
-    // Sync PHP <=> MySQL timezones
-    $mysql->query('SET @@session.time_zone = "'.date('P').'"');
-});
+\NG\DB\DBBootstrap::boot(Container::getInstance());
 
 // [[MARKER]] MySQL connection is established
 $timer->registerEvent('DB connection established');
@@ -348,7 +332,7 @@ if ((is_object($AUTH_METHOD[$config['auth_module']])) && (is_object($AUTH_METHOD
     $CURRENT_USER = $xrow;
 
     if (is_array($xrow)) {
-        NGEngine::getInstance()->set('currentUser', new NGUser($xrow));
+        Container::getInstance()->set('currentUser', new \NG\Core\NGUser($xrow));
     }
 
     if (isset($xrow['name']) && $xrow['name']) {

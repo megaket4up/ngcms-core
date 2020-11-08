@@ -36,7 +36,11 @@
         "michelf/php-markdown": "^1.9"
     },
     "require-dev": {},
-    "autoload": {},
+    "autoload": {
+        "psr-4": {
+            "NG\\": "engine/classes/"
+        }
+    },
     "autoload-dev": {},
     "minimum-stability": "dev",
     "prefer-stable": true,

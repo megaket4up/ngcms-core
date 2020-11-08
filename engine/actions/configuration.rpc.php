@@ -39,10 +39,10 @@ function admConfigurationTestDB($params)
 
     // Check if DB connection params are correct
     try {
-        $sx = NGEngine::getInstance();
-        $sx->set('db', new NGPDO(['host' => $params['dbhost'], 'user' => $params['dbuser'], 'pass' => $params['dbpasswd'], 'db' => $params['dbname']]));
+        $sx = \NG\Core\Container::getInstance();
+        $sx->set('db', new \NG\DB\PDODriver(['host' => $params['dbhost'], 'user' => $params['dbuser'], 'pass' => $params['dbpasswd'], 'db' => $params['dbname']]));
 
-        $sx->set('legacyDB', new NGLegacyDB(false));
+        $sx->set('legacyDB', new \NG\DB\NGLegacyDB(false));
         $sx->getLegacyDB()->connect('', '', '');
         $sqlTest = $sx->getLegacyDB();
     } catch (Exception $e) {

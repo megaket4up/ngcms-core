@@ -1,5 +1,9 @@
 <?php
 
+namespace NG\Core;
+
+use ArrayAccess;
+
 class NGUser implements ArrayAccess
 {
     protected $keys = null;

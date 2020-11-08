@@ -39,7 +39,7 @@ function pm_send()
         return;
     }
 
-    $db = NGEngine::getInstance()->getDB();
+    $db = \NG\Core\Container::getInstance()->getDB();
     $query = 'select * from '.uprefix.'_users where name = :name';
     $params = ['name' => $sendto];
     if (is_numeric($sendto)) {
@@ -66,7 +66,7 @@ function pm_list()
         'token'     => genUToken('pm.token'),
     ];
 
-    $db = NGEngine::getInstance()->getDB();
+    $db = \NG\Core\Container::getInstance()->getDB();
     foreach ($db->query('select pm.*, u.id as uid, u.name as uname from '.uprefix.'_users_pm pm left join '.uprefix.'_users u on pm.from_id=u.id where pm.to_id = :id order by pmid desc limit 0, 30', ['id' => $userROW['id']]) as $row) {
         $senderProfileURL = '';
         $senderName = $lang['messaging'];
@@ -107,7 +107,7 @@ function pm_read()
         return;
     }
 
-    $db = NGEngine::getInstance()->getDB();
+    $db = \NG\Core\Container::getInstance()->getDB();
     if ($row = $db->record('select * from '.uprefix.'_users_pm where pmid = :pmid and (to_id = :to_id or from_id= :from_id)', ['pmid' => $_REQUEST['pmid'], 'to_id' => $userROW['id'], 'from_id' => $userROW['id']])) {
         $tVars = [
             'id'        => $row['pmid'],
@@ -155,7 +155,7 @@ function pm_reply()
         return;
     }
 
-    $db = NGEngine::getInstance()->getDB();
+    $db = \NG\Core\Container::getInstance()->getDB();
     if ($row = $db->record('select * from '.uprefix.'_users_pm where pmid = :pmid and (to_id = :to_id or from_id= :from_id)', ['pmid' => $_REQUEST['pmid'], 'to_id' => $userROW['id'], 'from_id' => $userROW['id']])) {
         if (!is_array($row)) {
             msg(['type' => 'error', 'text' => $lang['msge_reply']]);
@@ -226,7 +226,7 @@ function pm_delete()
         return;
     }
 
-    $db = NGEngine::getInstance()->getDB();
+    $db = \NG\Core\Container::getInstance()->getDB();
     foreach ($selected_pm as $id) {
         $db->exec('delete from '.uprefix.'_users_pm where pmid = :pmid and (from_id= :from_id or to_id= :to_id)', ['pmid' => $id, 'from_id' => $userROW['id'], 'to_id' => $userROW['id']]);
     }

@@ -1,13 +1,16 @@
 <?php
 
-// NGCMS :: Global ENGINE core container
-class NGEngine
+namespace NG\Core;
+
+use Exception;
+
+class Container
 {
     protected static $instance = false;
     protected static $items = [];
 
     /**
-     * @return NGEngine Return instance of NGEngine singleton
+     * @return Container Return instance of NGEngine singleton
      */
     public static function getInstance()
     {

@@ -37,7 +37,7 @@ if ($cv < minDBVersion) {
 
 function getCurrentDBVersion(): int
 {
-    $db = NGEngine::getInstance()->getDB();
+    $db = \NG\Core\Container::getInstance()->getDB();
     $dbv = $db->record('select * from '.prefix.'_config where name = "database.engine.revision"');
 
     if (!is_array($dbv)) {
@@ -52,7 +52,7 @@ function doUpgrade($fromVersion, $toVersion)
 {
     global $upgradeMatrix;
 
-    $db = NGEngine::getInstance()->getDB();
+    $db = \NG\Core\Container::getInstance()->getDB();
     for ($i = $fromVersion; $i <= $toVersion; $i++) {
         echo 'Upgrade to revision: '.$i."<br/>\n";
         foreach ($upgradeMatrix[$i] as $k => $v) {

@@ -1,6 +1,11 @@
 <?php
 
-class NGErrorHandler
+namespace NG\ErrorHandler;
+
+use Exception;
+use NG\Core\Container;
+
+class ErrorHandler
 {
     public function __construct()
     {
@@ -10,8 +15,8 @@ class NGErrorHandler
     {
         // SQL error handler
         if ($area == 'SQL') {
-            $mode = NGEngine::getInstance()->getConfigParam('sql_error_show', 0);
-            $currentUser = NGEngine::getInstance()->getCurrentUser();
+            $mode = Container::getInstance()->getConfigParam('sql_error_show', 0);
+            $currentUser = Container::getInstance()->getCurrentUser();
 
             if (($mode == 2) ||
                 (($mode == 1) && (is_object($currentUser))) ||

@@ -1,25 +1,11 @@
 <?php
 
-// namespace NG\Twig;
+namespace NG\Twig;
 
-use Twig\Compiler;
 use Twig\Extension\AbstractExtension;
 use Twig\Extension\GlobalsInterface;
-use Twig\Node\Expression\FunctionExpression;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
-
-class NGTwigLocalPathFunctionExpression extends FunctionExpression
-{
-    protected function compileArguments(Compiler $compiler, $isArray = false): void
-    {
-        $compiler->raw($isArray ? '[' : '(');
-
-        $compiler->string($this->getTemplateName());
-
-        $compiler->raw($isArray ? ']' : ')');
-    }
-}
 
 class NGTwigExtension extends AbstractExtension implements GlobalsInterface
 {

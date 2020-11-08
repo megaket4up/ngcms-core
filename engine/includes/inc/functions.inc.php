@@ -883,7 +883,7 @@ function ListDirs($folder, $category = false, $alllink = true, $elementID = '')
             break;
 
         default:
-            return fase;
+            return false;
     }
 
     $select = '<select '.($elementID ? 'id="'.$elementID.'" ' : '').'name="category">'.($alllink ? '<option value="">- '.$lang['all'].' -</option>' : '');

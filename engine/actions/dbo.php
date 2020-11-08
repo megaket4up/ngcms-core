@@ -66,7 +66,7 @@ function systemDboModify()
 {
     global $config, $lang, $catz, $notify;
 
-    $db = NGEngine::getInstance()->getDB();
+    $db = \NG\Core\Container::getInstance()->getDB();
 
     // Check for permissions
     if (!checkPermission(['plugin' => '#admin', 'item' => 'dbo'], null, 'modify')) {
@@ -183,7 +183,7 @@ function systemDboModify()
             msg(['type' => 'error', 'text' => $lang['dbo']['msge_delbackup']]);
         } else {
             @unlink(root.'backups/'.$filename.'.gz');
-            sg(['text' => sprintf($lang['dbo']['msgo_delbackup'], $filename)]);
+            msg(['text' => sprintf($lang['dbo']['msgo_delbackup'], $filename)]);
         }
     }
 
@@ -305,7 +305,7 @@ function systemDboForm()
 {
     global $lang, $twig, $config, $PHP_SELF, $notify;
 
-    $db = NGEngine::getInstance()->getDB();
+    $db = \NG\Core\Container::getInstance()->getDB();
 
     // Check for permissions
     if (!checkPermission(['plugin' => '#admin', 'item' => 'dbo'], null, 'details')) {
